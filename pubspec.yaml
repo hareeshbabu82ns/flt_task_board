@@ -31,6 +31,9 @@ dependencies:
   
   provider: ^4.1.0
   font_awesome_flutter: ^8.8.1
+#  graphql: ^3.0.1
+  graphql_flutter: ^3.0.1
+  oktoast: ^2.3.2
 
 dev_dependencies:
   flutter_test:

@@ -3,6 +3,7 @@ library boardview;
 import 'dart:core';
 
 import 'package:flt_task_board/boardview/board_list.dart';
+import 'package:flt_task_board/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -21,7 +22,7 @@ class BoardView extends StatefulWidget {
       this.onDropItemInMiddleWidget,
       this.isSelecting = false,
       this.lists,
-      this.width = 280,
+      this.width = kLaneWidth,
       this.middleWidget,
       this.bottomPadding})
       : super(key: key);
@@ -32,8 +33,8 @@ class BoardView extends StatefulWidget {
   }
 }
 
-typedef void OnDropItem(int listIndex, int itemIndex);
-typedef void OnDropList(int listIndex);
+typedef void OnDropItem({int listId, int listIndex, int itemIndex});
+typedef void OnDropList({int listId, int listIndex});
 
 class BoardViewState extends State<BoardView> {
   Widget draggedItem;
@@ -297,6 +298,7 @@ class BoardViewState extends State<BoardView> {
         itemBuilder: (BuildContext context, int index) {
           if (widget.lists[index].boardView == null) {
             widget.lists[index] = BoardList(
+              id: widget.lists[index].id,
               items: widget.lists[index].items,
               backgroundColor: widget.lists[index].backgroundColor,
               footer: widget.lists[index].footer,
@@ -310,6 +312,7 @@ class BoardViewState extends State<BoardView> {
           }
           if (widget.lists[index].index != index) {
             widget.lists[index] = BoardList(
+              id: widget.lists[index].id,
               items: widget.lists[index].items,
               backgroundColor: widget.lists[index].backgroundColor,
               footer: widget.lists[index].footer,
@@ -570,15 +573,25 @@ class BoardViewState extends State<BoardView> {
                   int startDraggedListIndex = startListIndex;
 
                   if (_isInWidget && widget.onDropItemInMiddleWidget != null) {
-                    onDropItem(startDraggedListIndex, startDraggedItemIndex);
+                    onDropItem(
+                        listId: widget.lists[startDraggedListIndex].id,
+                        listIndex: startDraggedListIndex,
+                        itemIndex: startDraggedItemIndex);
                     widget.onDropItemInMiddleWidget(
-                        startDraggedListIndex, startDraggedItemIndex);
+                        listId: widget.lists[startDraggedListIndex].id,
+                        listIndex: startDraggedListIndex,
+                        itemIndex: startDraggedItemIndex);
                   } else {
-                    onDropItem(tempDraggedListIndex, tempDraggedItemIndex);
+                    onDropItem(
+                        listId: widget.lists[tempDraggedListIndex].id,
+                        listIndex: tempDraggedListIndex,
+                        itemIndex: tempDraggedItemIndex);
                   }
                 }
                 if (onDropList != null) {
-                  onDropList(draggedListIndex);
+                  onDropList(
+                      listId: widget.lists[draggedListIndex].id,
+                      listIndex: draggedListIndex);
                 }
                 draggedItem = null;
                 offsetX = null;

@@ -2,18 +2,40 @@ import 'package:flt_task_board/boardview/board_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-typedef void OnDropItem(int listIndex, int itemIndex, int oldListIndex,
-    int oldItemIndex, BoardItemState state);
-typedef void OnTapItem(int listIndex, int itemIndex, BoardItemState state);
+typedef void OnDropItem(
+    {int listId,
+    int itemId,
+    int listIndex,
+    int itemIndex,
+    int oldListIndex,
+    int oldItemIndex,
+    BoardItemState state});
+typedef void OnTapItem(
+    {int listId,
+    int itemId,
+    int listIndex,
+    int itemIndex,
+    BoardItemState state});
 typedef void OnStartDragItem(
-    int listIndex, int itemIndex, BoardItemState state);
-typedef void OnDragItem(int oldListIndex, int oldItemIndex, int newListIndex,
-    int newItemIndex, BoardItemState state);
+    {int listId,
+    int itemId,
+    int listIndex,
+    int itemIndex,
+    BoardItemState state});
+typedef void OnDragItem(
+    {int listId,
+    int itemId,
+    int oldListIndex,
+    int oldItemIndex,
+    int newListIndex,
+    int newItemIndex,
+    BoardItemState state});
 
 class BoardItem extends StatefulWidget {
   final BoardListState boardList;
   final Widget item;
   final int index;
+  final int id;
   final OnDropItem onDropItem;
   final OnTapItem onTapItem;
   final OnStartDragItem onStartDragItem;
@@ -24,6 +46,7 @@ class BoardItem extends StatefulWidget {
       {Key key,
       this.boardList,
       this.item,
+      @required this.id,
       this.index,
       this.onDropItem,
       this.onTapItem,
@@ -42,15 +65,17 @@ class BoardItemState extends State<BoardItem> {
   double height;
   double width;
 
-  void onDropItem(int listIndex, int itemIndex) {
+  void onDropItem({int listId, int listIndex, int itemIndex}) {
     widget.boardList.widget.boardView.listStates[listIndex].setState(() {
       if (widget.onDropItem != null) {
         widget.onDropItem(
-            listIndex,
-            itemIndex,
-            widget.boardList.widget.boardView.startListIndex,
-            widget.boardList.widget.boardView.startItemIndex,
-            this);
+            listId: listId,
+            itemId: widget.id,
+            listIndex: listIndex,
+            itemIndex: itemIndex,
+            oldListIndex: widget.boardList.widget.boardView.startListIndex,
+            oldItemIndex: widget.boardList.widget.boardView.startItemIndex,
+            state: this);
       }
       widget.boardList.widget.boardView.draggedItemIndex = null;
       widget.boardList.widget.boardView.draggedListIndex = null;
@@ -73,7 +98,11 @@ class BoardItemState extends State<BoardItem> {
         widget.boardList.widget.boardView.draggedItem = item;
         if (widget.onStartDragItem != null) {
           widget.onStartDragItem(
-              widget.boardList.widget.index, widget.index, this);
+              listId: widget.boardList.widget.id,
+              itemId: widget.id,
+              listIndex: widget.boardList.widget.index,
+              itemIndex: widget.index,
+              state: this);
         }
         widget.boardList.widget.boardView.run();
       });
@@ -117,7 +146,12 @@ class BoardItemState extends State<BoardItem> {
       onTapCancel: () {},
       onTap: () {
         if (widget.onTapItem != null) {
-          widget.onTapItem(widget.boardList.widget.index, widget.index, this);
+          widget.onTapItem(
+              listId: widget.boardList.widget.id,
+              itemId: widget.id,
+              listIndex: widget.boardList.widget.index,
+              itemIndex: widget.index,
+              state: this);
         }
       },
       onLongPress: () {

@@ -4,13 +4,15 @@ import 'package:flt_task_board/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-typedef void OnDropList(int listIndex, int oldListIndex);
-typedef void OnTapList(int listIndex);
-typedef void OnStartDragList(int listIndex);
+typedef void OnDropList({int listId, int listIndex, int oldListIndex});
+typedef void OnTapList({int listId, int listIndex});
+typedef void OnStartDragList({int listId, int listIndex});
+typedef Widget HeaderBuilder(BuildContext context, BoardListState state);
 
 class BoardList extends StatefulWidget {
-  final Widget header;
+  final HeaderBuilder header;
   final Widget footer;
+  final int id;
   final List<BoardItem> items;
   final Color backgroundColor;
   final BoardViewState boardView;
@@ -22,6 +24,7 @@ class BoardList extends StatefulWidget {
   const BoardList({
     Key key,
     this.header,
+    @required this.id,
     this.items,
     this.footer,
     this.backgroundColor,
@@ -45,10 +48,13 @@ class BoardListState extends State<BoardList> {
   List<BoardItemState> itemStates = List<BoardItemState>();
   ScrollController boardListController = new ScrollController();
 
-  void onDropList(int listIndex) {
+  void onDropList({int listId, int listIndex}) {
     widget.boardView.setState(() {
       if (widget.onDropList != null) {
-        widget.onDropList(listIndex, widget.boardView.startListIndex);
+        widget.onDropList(
+            listId: widget.id,
+            listIndex: listIndex,
+            oldListIndex: widget.boardView.startListIndex);
       }
       widget.boardView.draggedListIndex = null;
     });
@@ -58,7 +64,7 @@ class BoardListState extends State<BoardList> {
     if (widget.boardView != null && widget.draggable) {
       widget.boardView.setState(() {
         if (widget.onStartDragList != null) {
-          widget.onStartDragList(widget.index);
+          widget.onStartDragList(listId: widget.id, listIndex: widget.index);
         }
         widget.boardView.startListIndex = widget.index;
         widget.boardView.height = context.size.height;
@@ -78,7 +84,7 @@ class BoardListState extends State<BoardList> {
       listWidgets.add(GestureDetector(
         onTap: () {
           if (widget.onTapList != null) {
-            widget.onTapList(widget.index);
+            widget.onTapList(listId: widget.id, listIndex: widget.index);
           }
         },
         onTapDown: (otd) {
@@ -98,7 +104,7 @@ class BoardListState extends State<BoardList> {
             _startDrag(widget, context);
           }
         },
-        child: widget.header,
+        child: widget.header(context, this),
       ));
     }
     if (widget.items != null) {
@@ -120,6 +126,7 @@ class BoardListState extends State<BoardList> {
                       boardList: this,
                       item: widget.items[index].item,
                       draggable: widget.items[index].draggable,
+                      id: widget.items[index].id,
                       index: index,
                       onDropItem: widget.items[index].onDropItem,
                       onTapItem: widget.items[index].onTapItem,

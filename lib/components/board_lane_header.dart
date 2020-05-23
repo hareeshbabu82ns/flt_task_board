@@ -3,10 +3,13 @@ import 'package:flt_task_board/models/task_lane_model.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+typedef void OnAddTask(TaskLane lane);
+
 class BoardLaneHeader extends StatelessWidget {
   final TaskLane lane;
   final int laneItems;
-  BoardLaneHeader(this.lane, this.laneItems);
+  final OnAddTask onAddTask;
+  BoardLaneHeader(this.lane, this.laneItems, this.onAddTask);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,7 +34,9 @@ class BoardLaneHeader extends StatelessWidget {
 //                padding: EdgeInsets.all(4.0),
                 icon: FaIcon(Icons.add),
                 color: Colors.grey.shade500,
-                onPressed: () {},
+                onPressed: () {
+                  onAddTask(lane);
+                },
               ),
               IconButton(
                 icon: FaIcon(Icons.more_horiz),

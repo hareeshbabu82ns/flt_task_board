@@ -9,6 +9,40 @@ final db = DB();
 class BoardTask extends StatelessWidget {
   final Task task;
   BoardTask(this.task);
+
+  static final Map<int, String> dueTitles = {
+    0: 'Today',
+    1: 'Tomorrow',
+    -1: 'Yesterday'
+  };
+  static final List<String> months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ];
+  static String getDueDays(DateTime date) {
+    final diff = date?.difference(DateTime.now());
+    if (diff == null) return 'No Due';
+    if (dueTitles.containsKey(diff.inDays))
+      return '${dueTitles[diff.inDays]}';
+    else if (diff.inDays > 5) {
+      return 'by ${months[date.month - 1]} ${date.day} ';
+    } else if (diff.inDays < 0) {
+      return 'by ${diff.inDays.abs()} Days';
+    } else {
+      return 'in ${diff.inDays} Days';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -31,7 +65,7 @@ class BoardTask extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  task.description,
+                  task.description ?? '',
                   maxLines: 3,
 //                  overflow: TextOverflow.ellipsis,
                   style: kBodySecondaryTextStyle,
@@ -54,13 +88,13 @@ class BoardTask extends StatelessWidget {
                 FlatButton.icon(
                   onPressed: () {},
                   icon: FaIcon(Icons.timer),
-                  label: Text('Apr 12'),
+                  label: Text(getDueDays(task.dueBy)),
                   textColor: Colors.grey.shade400,
                 ),
                 Spacer(),
                 CircleAvatar(
                   backgroundImage: NetworkImage(
-                    db.users[task.assignedTo - 1].avatar,
+                    task.user?.avatar ?? db.users[task.assignedTo - 1].avatar,
                   ),
                 )
               ],
